@@ -43,7 +43,7 @@ services:
     depends_on:
      - "waweb"
     environment:
-     - VM_ADDRESS="<VM_ADDRESS>"
+     - VM_IP_ADDRESS="https://<VM_IP_ADDRESS>"
     volumes:
       - ./proxy_config/000-default.conf:/etc/apache2/sites-available/000-default.conf
     links:

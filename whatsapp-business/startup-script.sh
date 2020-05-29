@@ -1,4 +1,4 @@
-export VM_ADDRESS=https://
+export VM_IP_ADDRESS=
 export WA_DB_HOST_NAME=
 export WA_DB_USERNAME=
 export WA_DB_PASSWORD=
@@ -10,8 +10,8 @@ echo "WA_DB_HOSTNAME="$WA_DB_HOST_NAME >> db.env
 echo "WA_DB_USERNAME="$WA_DB_USERNAME >> db.env
 echo "WA_DB_PASSWORD="$WA_DB_PASSWORD >> db.env
 
-sed -i 's/<VM_ADDRESS>/\$VM_ADDRESS/g' docker-compose.yml
-sed -i 's/<WA_API_VERSION>/\$WA_API_VERSION/g' docker-compose.yml
+sed -i 's/<VM_IP_ADDRESS>/'"$VM_IP_ADDRESS"'/g' docker-compose.yml
+sed -i 's/<WA_API_VERSION>/'"$WA_API_VERSION"'/g' docker-compose.yml
 
 docker run docker/compose:1.24.0 version && \
 docker run --rm \
