@@ -4,7 +4,7 @@ Steps to set up a new machines for a whatsapp-business account
 1. Create new Postgres10 Database in GCloud.
 2. Create new Compute Engine instance in GCloud with whatsapp template.
 3. Set static IP for VM.
-4. SSH to machine and execute `git clone https://github.com/uwol/loyjoy-public.git && cd loyjoy-public/whatsapp-business`
+4. SSH to machine and execute `git clone https://github.com/loyjoy-gmbh/integration-whatsapp.git && cd integration-whatsapp`
 5. Fill env variables with `vi startup-script.sh`
 6. Execute startup-script with `chmod +x ./startup-script.sh && source ./startup-script.sh`
 7. Check whether containers are running `docker ps`
