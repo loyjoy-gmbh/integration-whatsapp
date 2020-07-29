@@ -18,3 +18,12 @@ Steps to set up a new machines for a whatsapp-business account
 - Specify wekhook in 01-Settings > Application > Update-Settings.
 - Create user in 00-Users > Create-User with username and password
 - Set username, password and hostname in LoyJoy.
+
+
+Create link for init message
+----------------------------
+- Phonenumber should have the following format: 49160xxxx.
+- Paste text in [https://www.urlencoder.org/](https://www.urlencoder.org/) and press `Encode` to get urlencoded text.
+- Replace `phonenumber` and `urlencoded-text` in the following link.
+
+https://api.whatsapp.com/send?phone={phonenumber}&text={urlencoded-text}&source&data&app_absent
