@@ -3,9 +3,9 @@ Steps to set up a new machines for a whatsapp-business account
 
 - Create new Postgres10 Database in GCloud with naming convention `whatsapp-<country-code><number>` and smallest Instance
 - Set allowed network to `0.0.0.0/0` for DB
-- Create new Compute Engine instance in GCloud with whatsapp template with naming convention `whatsapp-<country-code><number>`.
-- Set static IP for VM.
-- Fill Environment Variables of Compute Engine instance
+- Create new Compute Engine instance in GCloud with whatsapp template with naming convention `whatsapp-<country-code><number>`
+- Set static IP for VM 
+- Fill Meta Variables of newly created Compute Engine instance
 - Restart machine
 - Import Postman Collection & Postman Env into Postman.
 - Set the URL environment variable to VM's url in Postman.
