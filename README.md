@@ -24,6 +24,6 @@ Create link for init message
 ----------------------------
 - Phonenumber should have the following format: 49160xxxx.
 - Paste text in [https://www.urlencoder.org/](https://www.urlencoder.org/) and press `Encode` to get urlencoded text.
-- Replace `phonenumber` and `urlencoded-text` in the following link.
+- Replace `phonenumber` and `urlencoded-text` in the following link and share it.
 
 https://api.whatsapp.com/send?phone={phonenumber}&text={urlencoded-text}&source&data&app_absent

@@ -1,9 +1,3 @@
-export VM_IP_ADDRESS=
-export WA_DB_HOST_NAME=
-export WA_DB_USERNAME=
-export WA_DB_PASSWORD=
-export WA_API_VERSION=v2.27.12
-
 echo "WA_DB_ENGINE=PGSQL" > db.env
 echo "WA_DB_PORT=5432" >> db.env
 echo "WA_DB_HOSTNAME="$WA_DB_HOST_NAME >> db.env
