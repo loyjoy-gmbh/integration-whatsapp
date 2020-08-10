@@ -8,7 +8,7 @@ volumes:
     driver: local
 services:
   wacore:
-    image: docker.whatsapp.biz/coreapp:${WA_API_VERSION}
+    image: docker.whatsapp.biz/coreapp:<WA_API_VERSION>
     command: ["/opt/whatsapp/bin/launch_within_docker.sh"]
     volumes:
      - whatsappMedia:/usr/local/wamedia
@@ -19,7 +19,7 @@ services:
       ORCHESTRATION: DOCKER-COMPOSE
     network_mode: bridge
   waweb:
-    image: docker.whatsapp.biz/web:${WA_API_VERSION}
+    image: docker.whatsapp.biz/web:<WA_API_VERSION>
     command: ["/opt/whatsapp/bin/launch_within_docker.sh"]
     volumes:
       - whatsappMedia:/usr/local/wamedia
