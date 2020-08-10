@@ -22,8 +22,8 @@ echo "WA_DB_PASSWORD="$WA_DB_PASSWORD >> db.env
 sed -i 's/<VM_IP_ADDRESS>/'"$VM_IP_ADDRESS"'/g' proxy_config/000-default.conf
 sed -i 's/<WA_API_VERSION>/'"$WA_API_VERSION"'/g' docker-compose.yml
 
-docker image prune
 docker container prune
+docker image prune
 
 docker run --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
