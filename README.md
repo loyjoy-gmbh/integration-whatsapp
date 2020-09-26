@@ -19,7 +19,7 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
 - Restart machine and wait until WhatsApp automatically has added users and databases to PostgreSQL server.
 
 
-## Step 3: Configure WhatsApp on your compute engine
+## Step 3: Configure WhatsApp on your Compute Engine
 
 - Open the external ip in Web browser. A WhatsApp signin form should show up.
 - The default admin username as defined by WhatsApp is `admin` with password `secret`. Set a secure password (64 chars!) and document it accordingly (ask the team, where to document, there is a place already).
