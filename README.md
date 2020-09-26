@@ -9,6 +9,7 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
 
 - Create new PostgreSQL 10 database in GCloud with naming convention `whatsapp-<country-code><number>` and instance size as in other WhatsApp installations.
 - Set allowed network to `0.0.0.0/0` for DB.
+- Set flag `max_connections` to `1000`. This is super important in case following Compute Engine reboots and does not close connections.
 
 
 ## Step 2: Set up a Compute Engine
