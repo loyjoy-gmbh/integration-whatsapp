@@ -39,7 +39,7 @@ services:
   proxy:
     image: diouxx/apache-proxy
     ports:
-     - "80:80"
+     - "41529:80"
     depends_on:
      - "waweb"
     volumes:
