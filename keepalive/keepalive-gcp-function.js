@@ -1,4 +1,5 @@
 const http = require('http');
+const nodemailer = require('nodemailer');
 const Compute = require('@google-cloud/compute');
 const compute = new Compute();
 
@@ -82,10 +83,25 @@ const _requestHealth = async (token, payload, callback) => {
 const _resetVm = async (payload) => {
   const [operation] = await compute.zone(payload.zone).vm(payload.vm).reset();
   const message = 'Successfully reset instance ' + payload.zone + '/' + payload.vm;
+
   console.log(message);
+
+  if (payload.smtpHost && payload.smtpUsername && payload.smtpPassword && payload.smtpFrom && payload.smtpTo) {
+    _sendMail(message, payload);
+  }
 
   return message;
 };
+
+const _sendMail = (message, payload) => {
+  try {
+    const transporter = nodemailer.createTransport({ host: payload.smtpHost, port: 587, auth: { user: payload.smtpUsername, pass: payload.smtpPassword }});
+    const mailOptions = { from: payload.smtpFrom, to: payload.smtpTo, subject: message, text: message };
+    transporter.sendMail(mailOptions, (error, info) => { if (error) { console.log(error); } else { console.log('Sent email: ' + info.response); }});
+  } catch (e) {
+    console.warn(e)
+  }
+}
 
 const _validatePayload = (payload) => {
   if (!payload.zone) {
