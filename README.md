@@ -27,14 +27,33 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
 - Register phone number (02-Registration > Requst-Code):  Request-Code { "cc": "49", "phone_number": "<number>", "method": "sms", cert: "<cert>" }
 - You will receive a SMS under this phone number. Validate the account with the code you received via SMS (02-Registration > Register-Account).
 
+
 ## Step 4: Connect with LoyJoy
 
 - Specify the LoyJoy wekhook in 01-Settings > Application > Update-Settings as defined in LoyJoy under Bot / Publish.
 - Create a user in 00-Users > Create-User with username and password.
 - Set up this username and password according with the hostname in LoyJoy under Bot / Publish.
 
+
 ## Step 5: Chat via WhatsApp with LoyJoy
 
 - Paste some arbitrary text (e.g. `Letse go!`) into [https://www.urlencoder.org/](https://www.urlencoder.org/) and press `Encode` to transform to URL-encoded text.
 - Replace `phonenumber` and `urlencoded-text` in the following URL: `https://api.whatsapp.com/send?phone={phonenumber}&text={urlencoded-text}&source&data&app_absent`
 - Now you can share this URL. When a customer clicks this URL, WhatsApp should open with text `Letse go!` ready to send. After sending the bot should answer automatically.
+
+
+## Step 6: Configure keepalive
+
+- WhatsApp Business Api docker containers will crash every few days due to memory leaks and deadlocks in PostgreSQL database server. So it is mandatory to set up a keepalive cloud function, which monitors and reboots the compute engine.
+- Set up the cloud function in folder `keepalive` as `whatsapp-<tenant>-keepalive` in region `europe-west3` with 128 MB for PubSub topic `whatsapp-keepalive`.
+- Set up a Google Cloud Scheduler with `every 5 minutes` for PubSub topic `whatsapp-keepalive`. The payload has to be like 
+
+```
+{
+    "whatsAppHostname": ...,
+    "whatsAppUsername": ...,
+    "whatsAppPassword": ...,
+    "vm": ...,
+    "zone": ...
+}
+```
