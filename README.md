@@ -50,6 +50,11 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
 
 ```
 {
+    "smtpFrom": ...,
+    "smtpHost": ...,
+    "smtpPassword": ...,
+    "smtpTo": ...,
+    "smtpUsername": ...,
     "whatsAppHostname": ...,
     "whatsAppUsername": ...,
     "whatsAppPassword": ...,
