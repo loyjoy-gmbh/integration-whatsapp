@@ -1,0 +1,9 @@
+{
+  "name": "whatsapp-keepalive",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@google-cloud/compute": "^1.0.0",
+    "@google-cloud/pubsub": "^0.18.0"
+  }
+}
