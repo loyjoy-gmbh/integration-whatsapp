@@ -1,10 +1,10 @@
 #!/bin/bash
 set -u
 
-rm -rf ./integration-whatsapp
+rm -rf /tmp/integration-whatsapp
 
-git clone https://github.com/loyjoy/integration-whatsapp.git ./integration-whatsapp
-cd ./integration-whatsapp
+git clone https://github.com/loyjoy/integration-whatsapp.git /tmp/integration-whatsapp
+cd /tmp/integration-whatsapp
 
 export VM_IP_ADDRESS=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/VM_IP_ADDRESS -H "Metadata-Flavor: Google"`
 export WA_DB_HOST_NAME=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/WA_DB_HOST_NAME -H "Metadata-Flavor: Google"`
@@ -18,8 +18,11 @@ echo "WA_DB_HOSTNAME="$WA_DB_HOST_NAME >> db.env
 echo "WA_DB_USERNAME="$WA_DB_USERNAME >> db.env
 echo "WA_DB_PASSWORD="$WA_DB_PASSWORD >> db.env
 
-sed -i 's/<VM_IP_ADDRESS>/'"$VM_IP_ADDRESS"'/g' proxy_config/000-default.conf
+sed -i 's/<VM_IP_ADDRESS>/'"$VM_IP_ADDRESS"'/g' apache-proxy/000-default.conf
 sed -i 's/<WA_API_VERSION>/'"$WA_API_VERSION"'/g' docker-compose.yml
+
+sudo mkdir -p /etc/integration-whatsapp/apache-proxy/sites-available
+sudo cp ./apache-proxy/000-default.conf /etc/integration-whatsapp/apache-proxy/sites-available/000-default.conf
 
 docker container prune -f
 docker image prune -f
