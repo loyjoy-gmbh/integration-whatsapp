@@ -1,10 +1,10 @@
 #!/bin/bash
 set -u
 
-rm -rf /tmp/integration-whatsapp
+rm -rf /integration-whatsapp
 
-git clone https://github.com/loyjoy/integration-whatsapp.git /tmp/integration-whatsapp
-cd /tmp/integration-whatsapp
+git clone https://github.com/loyjoy/integration-whatsapp.git /integration-whatsapp
+cd /integration-whatsapp
 
 export VM_IP_ADDRESS=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/VM_IP_ADDRESS -H "Metadata-Flavor: Google"`
 export WA_DB_HOST_NAME=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/WA_DB_HOST_NAME -H "Metadata-Flavor: Google"`
