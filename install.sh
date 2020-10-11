@@ -29,3 +29,5 @@ docker run --rm \
     -v "$PWD:$PWD" \
     -w="$PWD" \
     docker/compose:1.24.0 up -d
+
+docker ps
