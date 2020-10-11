@@ -7,21 +7,21 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
 
 ## Step 1: Set up a PostgreSQL database server
 
-- Create new PostgreSQL 10 database in GCloud with naming convention `whatsapp-<country-code><number>` and instance size as in other WhatsApp installations.
+- Create new PostgreSQL 10 database in GCP with naming convention `whatsapp-<country-code><number>` and VM size as in other WhatsApp installations.
 - Set allowed network to `0.0.0.0/0` for DB.
-- Set flag `max_connections` to `1000`. This is super important in case following Compute Engine reboots and does not close connections.
+- Set flag `max_connections` to `1000`. This is super important in case following Google Compute Engine VM reboots and does not close connections.
 
 
-## Step 2: Set up a Compute Engine
+## Step 2: Set up a Google Compute Engine
 
-- Create new Compute Engine instance in GCloud with naming convention `whatsapp-<country-code><number>`, Container Optimized OS (cannot be changed afterwards, so double check) and CPU/Mem as in other machines of this type.
+- Create new Google Compute Engine VM in GCP with naming convention `whatsapp-<country-code><number>`, Container Optimized OS (cannot be changed afterwards, so double check) and CPU/Mem as in other machines of this type.
 - Set external static IP address for VM via `VPC network -> external ip address`.
-- Fill meta variables of newly created Compute Engine instance.
+- Fill meta variables of newly created Google Compute Engine VM.
 - Start machine SSH into machine.
 - Run `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/loyjoy/integration-whatsapp/master/install.sh)"`.
 
 
-## Step 3: Configure WhatsApp on your Compute Engine
+## Step 3: Configure WhatsApp on your Google Compute Engine VM
 
 - Open the external ip in Web browser. A WhatsApp signin form should show up.
 - The default admin username as defined by WhatsApp is `admin` with password `secret`. Set a secure password (64 chars!) and document it accordingly (ask the team, where to document, there is a place already).
@@ -45,9 +45,9 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
 
 ## Step 6: Configure keepalive
 
-- WhatsApp Business Api docker containers will crash every few days due to memory leaks and deadlocks in PostgreSQL database server. So it is mandatory to set up a keepalive cloud function, which monitors and reboots the compute engine.
+- WhatsApp Business Api docker containers will crash every few days due to memory leaks in coreapp and deadlocks in PostgreSQL database server. So it is absolutely mandatory to set up a keepalive cloud function, which monitors and reboots the Google Compute Engine VM.
 - Set up the cloud function in folder `keepalive` as `whatsapp-<tenant>-keepalive` in region `europe-west3` with 128 MB for PubSub topic `whatsapp-keepalive`.
-- Set up a Google Cloud Scheduler with `every 5 minutes` for PubSub topic `whatsapp-keepalive`. The payload has to be like
+- Set up a Google Cloud Scheduler with `every 1 minutes` for PubSub topic `whatsapp-keepalive`. The payload has to be like
 
 ```
 {
