@@ -21,9 +21,9 @@ echo "WA_DB_PASSWORD="$WA_DB_PASSWORD >> db.env
 sed -i 's/<VM_IP_ADDRESS>/'"$VM_IP_ADDRESS"'/g' apache-proxy/000-default.conf
 sed -i 's/<WA_API_VERSION>/'"$WA_API_VERSION"'/g' docker-compose.yml
 
-sudo rm -rf /etc/integration-whatsapp
-sudo mkdir -p /etc/integration-whatsapp/apache-proxy/sites-available
-sudo cp ./apache-proxy/000-default.conf /etc/integration-whatsapp/apache-proxy/sites-available
+sudo rm -rf /var/integration-whatsapp
+sudo mkdir -p /var/integration-whatsapp/apache-proxy/sites-available
+sudo cp ./apache-proxy/000-default.conf /var/integration-whatsapp/apache-proxy/sites-available
 
 docker container prune -f
 docker image prune -f

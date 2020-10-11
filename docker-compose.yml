@@ -45,7 +45,7 @@ services:
     depends_on:
      - "waweb"
     volumes:
-      - /etc/integration-whatsapp/apache-proxy/sites-available/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - /var/integration-whatsapp/apache-proxy/sites-available/000-default.conf:/etc/apache2/sites-available/000-default.conf
     links:
      - waweb
     network_mode: bridge
