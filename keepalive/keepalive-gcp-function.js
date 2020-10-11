@@ -59,10 +59,16 @@ const _httpRequest = async (options) => {
       }).on('end', async () => {
         console.log('Data retrieved from ' + options.host + options.path);
 
+        const responseBody = chunks.join('');
+
         if (response.statusCode < 200 || response.statusCode >= 300) {
-          reject(options.host + options.path + ' returned status code ' + response.statusCode + ": " + chunks.join());
+          reject(options.host + options.path + ' returned status code ' + response.statusCode + ": " + responseBody);
         } else {
-          resolve(JSON.parse(chunks.join()));
+          try {
+            resolve(JSON.parse(responseBody));
+          } catch (e) {
+            reject('Could not parse JSON: ' + responseBody);
+          }
         }
       });
     });
