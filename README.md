@@ -1,6 +1,6 @@
 # How to connect a WhatsApp phone number with LoyJoy
 
-LoyJoy can connect to WhatsApp via Twilio as well as via do-it-yourself Docker installation. Using Twilio to connect LoyJoy with WhatsApp is heavily recommended and very simple from side of LoyJoy by simply entering Twilio account data under Bot / Publish. 
+LoyJoy can connect to WhatsApp via Twilio as well as via do-it-yourself Docker installation. Using Twilio to connect LoyJoy with WhatsApp is heavily recommended and very simple from side of LoyJoy by simply entering Twilio account data under Bot / Publish.
 
 However, due to the beta status of WhatsApp in Twilio the following do-it-yourself approach based on Google Cloud Platform might be required. So let's go:
 
@@ -17,7 +17,8 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
 - Create new Compute Engine instance in GCloud with naming convention `whatsapp-<country-code><number>`, Container Optimized OS (cannot be changed afterwards, so double check) and CPU/Mem as in other machines of this type.
 - Set external static IP address for VM via `VPC network -> external ip address`.
 - Fill meta variables of newly created Compute Engine instance.
-- Restart machine and wait until WhatsApp automatically has added users and databases to PostgreSQL server.
+- Start machine SSH into machine.
+- Run `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/loyjoy/integration-whatsapp/master/install.sh)"`.
 
 
 ## Step 3: Configure WhatsApp on your Compute Engine
@@ -46,7 +47,7 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
 
 - WhatsApp Business Api docker containers will crash every few days due to memory leaks and deadlocks in PostgreSQL database server. So it is mandatory to set up a keepalive cloud function, which monitors and reboots the compute engine.
 - Set up the cloud function in folder `keepalive` as `whatsapp-<tenant>-keepalive` in region `europe-west3` with 128 MB for PubSub topic `whatsapp-keepalive`.
-- Set up a Google Cloud Scheduler with `every 5 minutes` for PubSub topic `whatsapp-keepalive`. The payload has to be like 
+- Set up a Google Cloud Scheduler with `every 5 minutes` for PubSub topic `whatsapp-keepalive`. The payload has to be like
 
 ```
 {
