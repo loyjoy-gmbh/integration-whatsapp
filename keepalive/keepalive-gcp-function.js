@@ -92,7 +92,6 @@ const _resetVm = async (causeMessage, payload) => {
   console.log(message);
   _sendMail(message, causeMessage, payload);
 
-  console.log('Resetting VM ' + payload.zone + '/' + payload.vm);
   await compute.zone(payload.zone).vm(payload.vm).reset();
 
   return message;
