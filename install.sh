@@ -1,10 +1,7 @@
 #!/bin/bash
 set -u
 
-if [ -d " /tmp/integration-whatsapp" ]
-then
-  rm -rf /tmp/integration-whatsapp
-fi
+rm -rf /tmp/integration-whatsapp
 
 git clone https://github.com/loyjoy/integration-whatsapp.git /tmp/integration-whatsapp
 cd /tmp/integration-whatsapp
