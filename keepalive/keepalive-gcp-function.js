@@ -2,153 +2,87 @@ const http = require('http');
 const nodemailer = require('nodemailer');
 const Compute = require('@google-cloud/compute');
 const compute = new Compute();
-const TIMEOUT = 10 * 1000;
+const TIMEOUT = 8 * 1000;
+
 
 exports.whatsAppKeepalive = async (event, context, callback) => {
+  const payload = _validatePayload(JSON.parse(Buffer.from(event.data, 'base64').toString()));
+
   try {
-    const payload = _validatePayload(JSON.parse(Buffer.from(event.data, 'base64').toString()));
-    _requestToken(payload, callback);
+    const tokenObject = await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/users/login', method: 'POST', auth: payload.whatsAppUsername + ':' + payload.whatsAppPassword, timeout: TIMEOUT });
+
+    if (!tokenObject || !tokenObject.users || tokenObject.users.length === 0 || !tokenObject.users[0] || !tokenObject.users[0].token) {
+      const message = payload.whatsAppHostname + '/v1/users/login is up but returns ' + tokenObject;
+      console.warn(message);
+      _sendMail('Invalid token at ' + payload.whatsAppHostname + payload.whatsAppPath, message, payload);
+      await _resetVm(payload);
+      callback(null, message);
+    } else {
+      const token = tokenObject.users[0].token;
+
+      await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/stats/app', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
+      await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/stats/db', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
+      const healthObject = await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/health', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
+
+      if (!healthObject || !healthObject.health || !healthObject.health.gateway_status || healthObject.health.gateway_status !== 'connected') {
+        const message = payload.whatsAppHostname + '/v1/health is up but returns ' + healthObject;
+        console.warn(message);
+        _sendMail('Invalid health object at ' + payload.whatsAppHostname + payload.whatsAppPath, message, payload);
+        await _resetVm(payload);
+        callback(null, message);
+      } else {
+        const message = payload.whatsAppHostname + '/v1/health is up and WhatsApp gateway is connected -> seems everything is fine';
+        console.log(message);
+        callback(null, message);
+      }
+    }
   } catch (err) {
     console.log(err);
-    callback(err);
+    _sendMail('Error at ' + payload.whatsAppHostname, err, payload);
+    await _resetVm(payload);
+    callback(null, err);
   }
 };
 
-const _requestToken = async (payload, callback) => {
-  http.request({ host: payload.whatsAppHostname, path: '/v1/users/login', method: 'POST', auth: payload.whatsAppUsername + ':' + payload.whatsAppPassword, timeout: TIMEOUT }, async (response) => {
-    console.log('Connection established with ' + payload.whatsAppHostname + '/v1/users/login');
-    response.setEncoding('utf8');
 
-    let chunks = [];
+const _httpRequest = async (options) => {
+  return new Promise((resolve, reject) => {
+    const request = http.request(options, (response) => {
+      console.log('Connection established with ' + options.host + options.path);
+      response.setEncoding('utf8');
 
-    response.on('data', (chunk) => {
-      console.log('Chunk retrieved from ' + payload.whatsAppHostname + '/v1/users/login');
-      chunks.push(chunk);
-    }).on('end', async () => {
-      console.log('Data retrieved from ' + payload.whatsAppHostname + '/v1/users/login');
+      let chunks = [];
 
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        const message = payload.whatsAppHostname + '/v1/users/login returned status code ' + response.statusCode + ": " + chunks.join();
-        console.warn(message);
-        callback(null, await _resetVm(message, payload));
-      } else {
-        const tokenObject = JSON.parse(chunks.join());
+      response.on('data', (chunk) => {
+        console.log('Chunk retrieved from ' + options.host + options.path);
+        chunks.push(chunk);
+      }).on('end', async () => {
+        console.log('Data retrieved from ' + options.host + options.path);
 
-        if (!tokenObject || !tokenObject.users || tokenObject.users.length === 0 || !tokenObject.users[0] || !tokenObject.users[0].token) {
-          const message = payload.whatsAppHostname + '/v1/users/login is up but returns ' + tokenObject;
-          console.warn(message);
-          callback(null, await _resetVm(message, payload));
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          reject(options.host + options.path + ' returned status code ' + response.statusCode + ": " + chunks.join());
         } else {
-          _requestStatsApp(tokenObject.users[0].token, payload, callback);
+          resolve(JSON.parse(chunks.join()));
         }
-      }
+      });
     });
-  }).on('error', async (e) => {
-    console.warn(e);
-    callback(null, await _resetVm(e, payload));
-  }).end();
+
+    request.on('timeout', () => {
+      request.abort();
+      reject('Timeout when connecting with ' + options.host + options.path);
+    });
+
+    request.on('error', (e) => {
+      reject(e);
+    });
+
+    request.end();
+  });
 }
 
-const _requestStatsApp = async (token, payload, callback) => {
-  http.request({ host: payload.whatsAppHostname, path: '/v1/stats/app', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT }, async (response) => {
-    console.log('Connection established with ' + payload.whatsAppHostname + '/v1/stats/app');
-    response.setEncoding('utf8');
-
-    let chunks = [];
-
-    response.on('data', (chunk) => {
-      console.log('Chunk retrieved from ' + payload.whatsAppHostname + '/v1/stats/app');
-      chunks.push(chunk);
-    }).on('end', async () => {
-      console.log('Data retrieved from ' + payload.whatsAppHostname + '/v1/stats/app');
-
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        const message = payload.whatsAppHostname + '/v1/stats/app returned status code ' + response.statusCode + ": " + chunks.join();
-        console.warn(message);
-        callback(null, await _resetVm(message, payload));
-      } else {
-        _requestStatsDb(token, payload, callback);
-      }
-    });
-  }).on('error', async (e) => {
-    console.warn(e);
-    callback(null, await _resetVm(e, payload));
-  }).end();
-}
-
-const _requestStatsDb = async (token, payload, callback) => {
-  http.request({ host: payload.whatsAppHostname, path: '/v1/stats/db', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT }, async (response) => {
-    console.log('Connection established with ' + payload.whatsAppHostname + '/v1/stats/db');
-    response.setEncoding('utf8');
-
-    let chunks = [];
-
-    response.on('data', (chunk) => {
-      console.log('Chunk retrieved from ' + payload.whatsAppHostname + '/v1/stats/db');
-      chunks.push(chunk);
-    }).on('end', async () => {
-      console.log('Data retrieved from ' + payload.whatsAppHostname + '/v1/stats/db');
-
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        const message = payload.whatsAppHostname + '/v1/stats/db returned status code ' + response.statusCode + ": " + chunks.join();
-        console.warn(message);
-        callback(null, await _resetVm(message, payload));
-      } else {
-        _requestHealth(token, payload, callback);
-      }
-    });
-  }).on('error', async (e) => {
-    console.warn(e);
-    callback(null, await _resetVm(e, payload));
-  }).end();
-}
-
-const _requestHealth = async (token, payload, callback) => {
-  http.request({ host: payload.whatsAppHostname, path: '/v1/health', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT }, async (response) => {
-    console.log('Connection established with ' + payload.whatsAppHostname + '/v1/health');
-    response.setEncoding('utf8');
-
-    let chunks = [];
-
-    response.on('data', (chunk) => {
-      console.log('Chunk retrieved from ' + payload.whatsAppHostname + '/v1/health');
-      chunks.push(chunk);
-    }).on('end', async () => {
-      console.log('Data retrieved from ' + payload.whatsAppHostname + '/v1/health');
-
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        const message = payload.whatsAppHostname + '/v1/health returned status code ' + response.statusCode + ": " + chunks.join();
-        console.warn(message);
-        callback(null, await _resetVm(message, payload));
-      } else {
-        const healthObject = JSON.parse(chunks.join());
-
-        if (!healthObject || !healthObject.health || !healthObject.health.gateway_status || healthObject.health.gateway_status !== 'connected') {
-          const message = payload.whatsAppHostname + '/v1/health is up but returns ' + healthObject;
-          console.warn(message);
-          callback(null, await _resetVm(message, payload));
-        } else {
-          const message = payload.whatsAppHostname + '/v1/health is up and WhatsApp gateway is connected -> seems everything is fine';
-          console.log(message);
-          callback(null, message);
-        }
-      }
-    });
-  }).on('error', async (e) => {
-    console.warn(e);
-    callback(null, await _resetVm(e, payload));
-  }).end();
-}
-
-const _resetVm = async (causeMessage, payload) => {
-  const message = 'Resetting VM ' + payload.zone + '/' + payload.vm;
-
-  console.log(message);
-  _sendMail(message, causeMessage, payload);
-
+const _resetVm = async (payload) => {
+  console.log('Resetting VM ' + payload.zone + '/' + payload.vm);
   await compute.zone(payload.zone).vm(payload.vm).reset();
-
-  return message;
 };
 
 const _sendMail = (subject, text, payload) => {
@@ -158,7 +92,7 @@ const _sendMail = (subject, text, payload) => {
       const mailOptions = { from: payload.smtpFrom, to: payload.smtpTo, subject: subject, text: text };
       transporter.sendMail(mailOptions, (error, info) => { if (error) { console.log(error); } else { console.log('Sent email: ' + info.response); }});
     } catch (e) {
-      console.warn(e)
+      console.warn(e);
     }
   }
 }
