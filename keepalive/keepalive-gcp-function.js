@@ -39,7 +39,9 @@ const _requestToken = async (payload, callback) => {
           console.warn(message);
           callback(null, await _resetVm(message, payload));
         } else {
-          _requestHealth(tokenObject.users[0].token, payload, callback);
+          await _requestStatsApp(tokenObject.users[0].token, payload, callback);
+          await _requestStatsDb(tokenObject.users[0].token, payload, callback);
+          await _requestHealth(tokenObject.users[0].token, payload, callback);
         }
       }
     });
@@ -78,6 +80,56 @@ const _requestHealth = async (token, payload, callback) => {
           console.log(message);
           callback(null, message);
         }
+      }
+    });
+  }).on('error', async (e) => {
+    console.warn(e);
+    callback(null, await _resetVm(e, payload));
+  }).end();
+}
+
+const _requestStatsApp = async (token, payload, callback) => {
+  http.request({ host: payload.whatsAppHostname, path: '/v1/stats/app', method: 'GET', headers: { Authorization: 'Bearer ' + token }}, async (response) => {
+    console.log('Connection established with ' + payload.whatsAppHostname + '/v1/stats/app');
+    response.setEncoding('utf8');
+
+    let chunks = [];
+
+    response.on('data', (chunk) => {
+      console.log('Chunk retrieved from ' + payload.whatsAppHostname + '/v1/stats/app');
+      chunks.push(chunk);
+    }).on('end', async () => {
+      console.log('Data retrieved from ' + payload.whatsAppHostname + '/v1/stats/app');
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        const message = payload.whatsAppHostname + '/v1/stats/app returned status code ' + response.statusCode + ": " + chunks.join();
+        console.warn(message);
+        callback(null, await _resetVm(message, payload));
+      }
+    });
+  }).on('error', async (e) => {
+    console.warn(e);
+    callback(null, await _resetVm(e, payload));
+  }).end();
+}
+
+const _requestStatsDb = async (token, payload, callback) => {
+  http.request({ host: payload.whatsAppHostname, path: '/v1/stats/db', method: 'GET', headers: { Authorization: 'Bearer ' + token }}, async (response) => {
+    console.log('Connection established with ' + payload.whatsAppHostname + '/v1/stats/db');
+    response.setEncoding('utf8');
+
+    let chunks = [];
+
+    response.on('data', (chunk) => {
+      console.log('Chunk retrieved from ' + payload.whatsAppHostname + '/v1/stats/db');
+      chunks.push(chunk);
+    }).on('end', async () => {
+      console.log('Data retrieved from ' + payload.whatsAppHostname + '/v1/stats/db');
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        const message = payload.whatsAppHostname + '/v1/stats/db returned status code ' + response.statusCode + ": " + chunks.join();
+        console.warn(message);
+        callback(null, await _resetVm(message, payload));
       }
     });
   }).on('error', async (e) => {
