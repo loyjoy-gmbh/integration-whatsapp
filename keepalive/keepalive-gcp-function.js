@@ -87,16 +87,13 @@ const _requestHealth = async (token, payload, callback) => {
 }
 
 const _resetVm = async (causeMessage, payload) => {
-  const message = 'Restarting VM ' + payload.zone + '/' + payload.vm;
+  const message = 'Resetting VM ' + payload.zone + '/' + payload.vm;
 
   console.log(message);
   _sendMail(message, causeMessage, payload);
 
-  console.log('Stopping VM ' + payload.zone + '/' + payload.vm);
-  await compute.zone(payload.zone).vm(payload.vm).stop();
-
-  console.log('Starting VM ' + payload.zone + '/' + payload.vm);
-  await compute.zone(payload.zone).vm(payload.vm).start();
+  console.log('Resetting VM ' + payload.zone + '/' + payload.vm);
+  await compute.zone(payload.zone).vm(payload.vm).reset();
 
   return message;
 };
