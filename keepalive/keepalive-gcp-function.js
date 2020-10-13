@@ -12,7 +12,7 @@ exports.whatsAppKeepalive = async (event, context, callback) => {
     const tokenObject = await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/users/login', method: 'POST', auth: payload.whatsAppUsername + ':' + payload.whatsAppPassword, timeout: TIMEOUT });
 
     if (!tokenObject || !tokenObject.users || tokenObject.users.length === 0 || !tokenObject.users[0] || !tokenObject.users[0].token) {
-      const message = payload.whatsAppHostname + '/v1/users/login is up but returns ' + tokenObject;
+      const message = payload.whatsAppHostname + '/v1/users/login is up but returns ' + JSON.stringify(tokenObject);
       console.warn(message);
       _sendMail('Invalid token at ' + payload.whatsAppHostname + payload.whatsAppPath, message, payload);
       await _resetVm(payload);
@@ -25,7 +25,7 @@ exports.whatsAppKeepalive = async (event, context, callback) => {
       const healthObject = await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/health', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
 
       if (!healthObject || !healthObject.health || !healthObject.health.gateway_status || healthObject.health.gateway_status !== 'connected') {
-        const message = payload.whatsAppHostname + '/v1/health is up but returns ' + healthObject;
+        const message = payload.whatsAppHostname + '/v1/health is up but returns ' + JSON.stringify(healthObject);
         console.warn(message);
         _sendMail('Invalid health object at ' + payload.whatsAppHostname + payload.whatsAppPath, message, payload);
         await _resetVm(payload);
