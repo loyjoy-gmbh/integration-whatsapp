@@ -25,6 +25,7 @@ exports.whatsAppKeepalive = async (event, context, callback) => {
       await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/settings/application', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
       await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/settings/profile/about', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
       await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/settings/business/profile', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
+      await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/services/message/gc', method: 'PUT', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
 
       const healthObject = await _httpRequest({ host: payload.whatsAppHostname, path: '/v1/health', method: 'GET', headers: { Authorization: 'Bearer ' + token }, timeout: TIMEOUT });
 
