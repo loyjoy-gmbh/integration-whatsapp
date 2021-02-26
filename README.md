@@ -63,3 +63,11 @@ However, due to the beta status of WhatsApp in Twilio the following do-it-yourse
     "zone": ...
 }
 ```
+
+
+## Step n-1: If the disk is full
+
+```
+$ docker exec integration-whatsapp_waweb_1 /opt/whatsapp/bin/cleanup.sh
+$ docker exec integration-whatsapp_wacore_1 /opt/whatsapp/bin/cleanup.sh
+```
