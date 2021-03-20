@@ -7,14 +7,14 @@ git clone https://github.com/loyjoy/integration-whatsapp.git /tmp/integration-wh
 cd /tmp/integration-whatsapp
 
 export VM_IP_ADDRESS=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/VM_IP_ADDRESS -H "Metadata-Flavor: Google"`
-export WA_DB_HOST_NAME=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/WA_DB_HOST_NAME -H "Metadata-Flavor: Google"`
+export WA_DB_HOSTNAME=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/WA_DB_HOSTNAME -H "Metadata-Flavor: Google"`
 export WA_DB_USERNAME=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/WA_DB_USERNAME -H "Metadata-Flavor: Google"`
 export WA_DB_PASSWORD=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/WA_DB_PASSWORD -H "Metadata-Flavor: Google"`
 export WA_API_VERSION=`curl -fs http://metadata/computeMetadata/v1/instance/attributes/WA_API_VERSION -H "Metadata-Flavor: Google"`
 
 echo "WA_DB_ENGINE=PGSQL" > db.env
 echo "WA_DB_PORT=5432" >> db.env
-echo "WA_DB_HOSTNAME="$WA_DB_HOST_NAME >> db.env
+echo "WA_DB_HOSTNAME="$WA_DB_HOSTNAME >> db.env
 echo "WA_DB_USERNAME="$WA_DB_USERNAME >> db.env
 echo "WA_DB_PASSWORD="$WA_DB_PASSWORD >> db.env
 
